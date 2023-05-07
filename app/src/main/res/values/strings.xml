@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">NetCon</string>
+    <string name="modify">修改信息</string>
+    <string name="net_connect">连接校园网</string>
+    <string name="password_input">请输入密码</string>
+    <string name="account_input">请输入学号</string>
+    <string name="cmcc">中国移动</string>
+    <string name="cnnet">中国电信</string>
+    <string name="njupt">校园网</string>
+    <string name="tips_1">输入学号密码后,点击“修改信息“才能保存哦ヾ(≧▽≦*)o</string>
+    <string name="see_code">查看源码</string>
+    <string name="help">帮助</string>
+
+
+</resources>
