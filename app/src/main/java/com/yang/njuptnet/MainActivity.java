@@ -210,20 +210,19 @@ public class MainActivity extends AppCompatActivity {
         name = txtName.getText().toString().trim();
         code = txtCode.getText().toString().trim();
 
-
-        //永久性存储数据
-        SharedPreferences.Editor editor = getSharedPreferences("lock", MODE_PRIVATE).edit();
-        editor.putString("name", name);
-        editor.putString("code", code);
-        editor.putString("type", person.getType());
-
-        editor.apply();
-        //提示消息设置成功
         if (("".equals(name)) | ("".equals(code)))
             Toast.makeText(getApplicationContext(), "没有输入账户信息哦/_ \\", Toast.LENGTH_SHORT).show();
+        else {
+            //永久性存储数据
+            SharedPreferences.Editor editor = getSharedPreferences("lock", MODE_PRIVATE).edit();
+            editor.putString("name", name);
+            editor.putString("code", code);
+            editor.putString("type", person.getType());
+            editor.apply();
 
-        else
+            //提示消息设置成功
             Toast.makeText(getApplicationContext(), "保存成功ヾ(≧▽≦*)o", Toast.LENGTH_SHORT).show();
+        }
 
     }
 

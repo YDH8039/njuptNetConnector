@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NetCon</string>
+    <string name="app_name">南邮校园网</string>
     <string name="modify">修改信息</string>
     <string name="net_connect">连接校园网</string>
     <string name="password_input">请输入密码</string>
