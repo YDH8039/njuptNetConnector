@@ -8,7 +8,7 @@ android {
     // 自定义打包名称
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            outputFileName = "南邮校园网.apk"
+            outputFileName = "njuptNetConnector.apk"
         }
     }
 

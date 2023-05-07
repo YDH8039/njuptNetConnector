@@ -1,5 +1,6 @@
 package com.yang.njuptnet;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,9 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
         Button btn2 = findViewById(R.id.submit_button);
         btn2.setOnClickListener(new BtnClickListener());
 
-        //RedioButton 监听
+        //RadioButton 监听
 //        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radio_group);
 //        radioGroup.setOnClickListener(new RadioGroup.);
 
@@ -52,29 +53,18 @@ public class MainActivity extends AppCompatActivity {
 //        spinner.setOnItemSelectedListener(new ProvOnItemSelectedListener());
     }
 
+    @SuppressLint("NonConstantResourceId")
     public void onRadioButtonClicked(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
 //        String type = (String) ((RadioButton) view).getText();
-        if (debugTag)
-            Log.d("debug", (String) ((RadioButton) view).getText());
-
-        // Check which radio button was clicked
-        switch (view.getId()) {
-            case R.id.cmcc_selector:
-                if (checked)
-                    // Pirates are the best
-                    person.setType("@cmcc");
-                break;
-            case R.id.cnnet_selector:
-                if (checked)
-                    // Ninjas rule
-                    person.setType("@njxy");
-                break;
-            case R.id.njupt_selector:
-                if (checked)
-                    person.setType("校园网");
-                break;
+        int id = view.getId();
+        if (checked) {
+            if (id == R.id.cmcc_selector) person.setType("@cmcc");
+            if (id == R.id.cnnet_selector) person.setType("@njxy");
+            if (id == R.id.njupt_selector) person.setType("校园网");
+            if (debugTag)
+                Log.d("debug", (String) ((RadioButton) view).getText());
         }
     }
 
@@ -87,15 +77,10 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.see_code:
-                onOpenGithubMenu();
-                return true;
-            case R.id.help_menu:
-                onHelpMenu();
-                return true;
-        }
-        return false;
+        int id = item.getItemId();
+        if (id == R.id.see_code) onOpenGithubMenu();
+        if (id == R.id.help_menu) onHelpMenu();
+        return true;
     }
 
     public void onOpenGithubMenu() {
@@ -114,7 +99,7 @@ public class MainActivity extends AppCompatActivity {
 //            if (debugTag)
 //                Log.d("debug",)
             if (id.equals(R.id.modify_button)) {
-                saveInfor();
+                saveInfo();
 //                if (debugTag) {
 //                    Log.d("debug", person.id + person.type);
 //                    Log.d("debug", "modify");
@@ -122,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
             }
             if (id.equals(R.id.submit_button)) {
                 connect();
-                if (debugTag) {
+//                if (debugTag) {
 //                    Log.d("debug", person.id + person.type);
 //                    Log.d("debug", "submit");
-                }
+//                }
             }
         }
     }
@@ -185,15 +170,14 @@ public class MainActivity extends AppCompatActivity {
                     if (!result.equals("ok")) {
                         //不是ok的时候发起连接
                         sendPost(ip3, content);
-                        Log.d("tag", content + String.valueOf(count));
-                        count++;
+                        Log.d("tag", content + count);
                     } else {
                         //已经连上时弹出消息框已经连接
                         runOnUiThread(() -> Toast.makeText(getApplicationContext(),
                                 "connected", Toast.LENGTH_SHORT).show());
                         Log.d("tag", String.valueOf(count));
-                        count++;
                     }
+                    count++;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -202,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     //修改学号密码
-    public void saveInfor() {
+    public void saveInfo() {
         //读取输入框的值
         EditText txtName = findViewById(R.id.account_textview);
         EditText txtCode = findViewById(R.id.password_textview);
@@ -282,18 +266,16 @@ public class MainActivity extends AppCompatActivity {
     //用于返回值的处理
     private String getStringByStream(InputStream inputStream) {
         Reader reader;
-        StringBuffer buffer;
+        StringBuilder buffer;
         try {
-            reader = new InputStreamReader(inputStream, "UTF-8");
+            reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
             char[] rawBuffer = new char[512];
-            buffer = new StringBuffer();
+            buffer = new StringBuilder();
             int length;
             while ((length = reader.read(rawBuffer)) != -1) {
                 buffer.append(rawBuffer, 0, length);
             }
             return buffer.toString();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
