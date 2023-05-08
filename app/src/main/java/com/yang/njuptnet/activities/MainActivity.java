@@ -50,21 +50,12 @@ public class MainActivity extends AppCompatActivity {
         btn1.setOnClickListener(new BtnClickListener());
         Button btn2 = findViewById(R.id.submit_button);
         btn2.setOnClickListener(new BtnClickListener());
-
-        //RadioButton 监听
-//        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.radio_group);
-//        radioGroup.setOnClickListener(new RadioGroup.);
-
-        //给下拉框设置监听
-//        Spinner spinner = findViewById(R.id.spinner);
-//        spinner.setOnItemSelectedListener(new ProvOnItemSelectedListener());
     }
 
     @SuppressLint("NonConstantResourceId")
     public void onRadioButtonClicked(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
-//        String type = (String) ((RadioButton) view).getText();
         int id = view.getId();
         if (checked) {
             if (id == R.id.cmcc_selector) person.setType("@cmcc");
@@ -76,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public boolean onCreateOptionsMenu(Menu menu) {
-        //创建选项菜单
-//        Menu menu = findViewById(R.id.m)
         getMenuInflater().inflate(R.menu.menu, menu);
         return true;
     }
@@ -105,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.help_menu) {
             Intent intent = new Intent(MainActivity.this, HelpActivity.class);
             startActivity(intent);
-//          Toast.makeText(getApplicationContext(), "Help Todo", Toast.LENGTH_SHORT).show();
         }
         return true;
     }
@@ -116,40 +104,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Integer id = v.getId();
-//            if (debugTag)
-//                Log.d("debug",)
             if (id.equals(R.id.modify_button)) {
                 saveInfo();
-//                if (debugTag) {
-//                    Log.d("debug", person.id + person.type);
-//                    Log.d("debug", "modify");
-//                }
             }
             if (id.equals(R.id.submit_button)) {
                 connect();
-//                if (debugTag) {
-//                    Log.d("debug", person.id + person.type);
-//                    Log.d("debug", "submit");
-//                }
             }
         }
     }
-
-    //下拉框的监听
-//    private class ProvOnItemSelectedListener implements AdapterView.OnItemSelectedListener {
-//        @Override
-//        public void onItemSelected(AdapterView<?> adapter, View view, int position, long id) {
-//            String sInfo = adapter.getItemAtPosition(position).toString();
-//            if (sInfo.equals("中国移动")) person.setType("@cmcc");
-//            if (sInfo.equals("中国电信")) person.setType("@njxy");
-//            if (sInfo.equals("校园网")) person.setType("校园网");
-//        }
-//
-//        @Override
-//        public void onNothingSelected(AdapterView<?> arg0) {
-//            String sInfo = "null";
-//        }
-//    }
 
     //连接的步骤
     public void connect() {
