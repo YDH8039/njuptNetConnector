@@ -1,7 +1,11 @@
-package com.yang.njuptnet;
+package com.yang.njuptnet.activities;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -13,6 +17,9 @@ import android.widget.RadioButton;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.yang.njuptnet.dataclass.Person;
+import com.yang.njuptnet.R;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -78,18 +85,31 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.see_code) onOpenGithubMenu();
-        if (id == R.id.help_menu) onHelpMenu();
+        if (id == R.id.see_code) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("确认打开浏览器？");
+            //                @Override
+            builder.setPositiveButton("确认", (dialog, arg1) -> {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://github.com/YDH8039/njuptNetConnector"));
+                startActivity(intent);
+                dialog.dismiss();
+
+            });
+            builder.setNegativeButton("取消", (dialog, which) -> {
+                dialog.dismiss();
+            });
+            builder.create().show();
+        }
+        if (id == R.id.help_menu) {
+            Intent intent = new Intent(MainActivity.this, HelpActivity.class);
+            startActivity(intent);
+//          Toast.makeText(getApplicationContext(), "Help Todo", Toast.LENGTH_SHORT).show();
+        }
         return true;
     }
 
-    public void onOpenGithubMenu() {
-        Toast.makeText(getApplicationContext(), "See Code Todo", Toast.LENGTH_SHORT).show();
-    }
-
-    public void onHelpMenu() {
-        Toast.makeText(getApplicationContext(), "Help Todo", Toast.LENGTH_SHORT).show();
-    }
 
     //按钮的监听
     class BtnClickListener implements View.OnClickListener {
@@ -133,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
 
     //连接的步骤
     public void connect() {
+        RadioButton radioButton = findViewById(R.id.cmcc_selector);
 
         EditText txtName = findViewById(R.id.account_textview);
         EditText txtCode = findViewById(R.id.password_textview);
@@ -141,6 +162,22 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences read = getSharedPreferences("lock", MODE_PRIVATE);
         name = read.getString("name", "");
         code = read.getString("code", "");
+
+        switch (read.getString("type", "")) {
+            case "校园网": {
+                radioButton = findViewById(R.id.njupt_selector);
+                break;
+            }
+            case "@cmcc": {
+                radioButton = findViewById(R.id.cmcc_selector);
+                break;
+            }
+            case "@njxy": {
+                radioButton = findViewById(R.id.cnnet_selector);
+                break;
+            }
+        }
+        radioButton.setChecked(true);
 
         person.set(name, code, read.getString("type", ""));
         //将两行输入框设置为我们现在用的学号和密码

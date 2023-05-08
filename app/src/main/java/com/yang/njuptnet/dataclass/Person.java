@@ -1,4 +1,4 @@
-package com.yang.njuptnet;
+package com.yang.njuptnet.dataclass;
 
 public class Person {
     private String id;
