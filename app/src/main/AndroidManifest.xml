@@ -2,11 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+<!--    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />-->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!--    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />-->
+<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
 
     <application
         android:allowBackup="true"
@@ -19,16 +23,31 @@
         android:theme="@style/Theme.NetConApp"
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
-        <activity
-            android:name=".activities.HelpActivity"
-            android:exported="false">
-        </activity>
+<!--        <receiver-->
+<!--            android:name=".WlanReceiver"-->
+<!--            android:enabled="true"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                &lt;!&ndash;                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />&ndash;&gt;-->
+<!--                <action android:name="WifiManager.NETWORK_STATE_CHANGED_ACTION" />-->
+<!--                &lt;!&ndash;                <action android:name="WifiManager.WIFI_STATE_CHANGED_ACTION" />&ndash;&gt;-->
+<!--                &lt;!&ndash;                <action android:name="ConnectivityManager.CONNECTIVITY_ACTION" />&ndash;&gt;-->
+<!--                &lt;!&ndash;                <action android:name="WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION" />&ndash;&gt;-->
+<!--                &lt;!&ndash;                <action android:name="WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION" />&ndash;&gt;-->
+<!--                &lt;!&ndash;                <action android:name="WifiManager.SUPPLICANT_STATE_CHANGED_ACTION" />&ndash;&gt;-->
+<!--            </intent-filter>-->
+<!--        </receiver>-->
 
         <activity
-            android:name=".activities.MainActivity"
+            android:name=".HelpActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

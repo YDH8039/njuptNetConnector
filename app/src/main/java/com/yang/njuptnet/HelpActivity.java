@@ -1,4 +1,4 @@
-package com.yang.njuptnet.activities;
+package com.yang.njuptnet;
 
 import androidx.appcompat.app.AppCompatActivity;
 

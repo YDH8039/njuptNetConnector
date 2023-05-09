@@ -1,11 +1,15 @@
-package com.yang.njuptnet.activities;
+package com.yang.njuptnet;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkRequest;
 import android.net.Uri;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -19,18 +23,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.yang.njuptnet.dataclass.Person;
-import com.yang.njuptnet.R;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity {
     String ip, text, result, content, name, code;
@@ -50,9 +43,18 @@ public class MainActivity extends AppCompatActivity {
         btn1.setOnClickListener(new BtnClickListener());
         Button btn2 = findViewById(R.id.submit_button);
         btn2.setOnClickListener(new BtnClickListener());
+
+
+        NetworkChecker networkCallback = new NetworkChecker();
+        NetworkRequest.Builder builder = new NetworkRequest.Builder();
+        NetworkRequest request = builder.build();
+        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connMgr != null) {
+            connMgr.registerNetworkCallback(request, networkCallback);
+        }
     }
 
-    @SuppressLint("NonConstantResourceId")
+
     public void onRadioButtonClicked(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
@@ -61,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
             if (id == R.id.cmcc_selector) person.setType("@cmcc");
             if (id == R.id.cnnet_selector) person.setType("@njxy");
             if (id == R.id.njupt_selector) person.setType("校园网");
-            if (debugTag)
-                Log.d("debug", (String) ((RadioButton) view).getText());
         }
     }
 
@@ -75,20 +75,15 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.see_code) {
-
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setMessage("确认打开浏览器？");
-            //                @Override
             builder.setPositiveButton("确认", (dialog, arg1) -> {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.setData(Uri.parse("https://github.com/YDH8039/njuptNetConnector"));
                 startActivity(intent);
                 dialog.dismiss();
-
             });
-            builder.setNegativeButton("取消", (dialog, which) -> {
-                dialog.dismiss();
-            });
+            builder.setNegativeButton("取消", (dialog, which) -> dialog.dismiss());
             builder.create().show();
         }
         if (id == R.id.help_menu) {
@@ -104,26 +99,36 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             Integer id = v.getId();
-            if (id.equals(R.id.modify_button)) {
-                saveInfo();
-            }
-            if (id.equals(R.id.submit_button)) {
-                connect();
-            }
+            if (id.equals(R.id.modify_button)) saveInfo();
+            if (id.equals(R.id.submit_button)) connect();
         }
     }
+
+    public void getWifiName() {
+        WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+        assert wifiManager != null;
+
+        WifiInfo wifiInfo = wifiManager.getConnectionInfo();
+        String SSID = wifiInfo.getSSID();
+
+
+        Log.d("debug", SSID);
+
+    }
+
 
     //连接的步骤
     public void connect() {
         RadioButton radioButton = findViewById(R.id.cmcc_selector);
-
-        EditText txtName = findViewById(R.id.account_textview);
         EditText txtCode = findViewById(R.id.password_textview);
+        EditText txtName = findViewById(R.id.account_textview);
 
         //读取存储的内容
         SharedPreferences read = getSharedPreferences("lock", MODE_PRIVATE);
         name = read.getString("name", "");
         code = read.getString("code", "");
+        txtName.setText(name);
+        txtCode.setText(code);
 
         switch (read.getString("type", "")) {
             case "校园网": {
@@ -143,8 +148,6 @@ public class MainActivity extends AppCompatActivity {
 
         person.set(name, code, read.getString("type", ""));
         //将两行输入框设置为我们现在用的学号和密码
-        txtName.setText(name);
-        txtCode.setText(code);
         //因为选择校园网的时候后缀为空但这里不能直接设置为空，所以我们加个判断来区分选择校园网的时候
         if (person.getType().equals("校园网")) {
             content = "DDDDD=,0," + person.getId() + "&upass=" + person.getPassword();
@@ -154,21 +157,21 @@ public class MainActivity extends AppCompatActivity {
         //开启子线程
         new Thread(() -> {
             //先做个连接，因为有时候这个ip还不是对应自己的
-            sendPost(ip3, content);
+            NetAction.sendPost(ip3, content);
             //做个计数
             int count = 1;
             while (true) {
                 try {
                     //每20秒进行一次的循环
                     Thread.sleep(20000);
-                    text = sendGet(ip1);
-                    ip = re_search("v46ip='([^']*)'", text);
+                    text = NetAction.sendGet(ip1);
+                    ip = NetAction.re_search("v46ip='([^']*)'", text);
                     ip2 += ip;
-                    text = sendGet(ip2);
-                    result = re_search("\"result\":\"([^\"]*)\"", text);
+                    text = NetAction.sendGet(ip2);
+                    result = NetAction.re_search("\"result\":\"([^\"]*)\"", text);
                     if (!result.equals("ok")) {
                         //不是ok的时候发起连接
-                        sendPost(ip3, content);
+                        NetAction.sendPost(ip3, content);
                         Log.d("tag", content + count);
                     } else {
                         //已经连上时弹出消息框已经连接
@@ -205,92 +208,6 @@ public class MainActivity extends AppCompatActivity {
 
             //提示消息设置成功
             Toast.makeText(getApplicationContext(), "保存成功ヾ(≧▽≦*)o", Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-    //以下是Get、Post以及search函数
-    HttpURLConnection connection;
-    String line, pattern, param, results;
-    int responseCode;
-
-    //get的用法，用String获取get的访问值来满足对ip和状态的确定
-    public String sendGet(String ip) {
-        try {
-            connection = null;
-            URL url = new URL(ip);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(3000);
-            connection.setReadTimeout(3000);
-            connection.setRequestMethod("GET");
-            connection.setDoInput(true);
-            connection.setDoOutput(false);
-            connection.connect();
-            responseCode = connection.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw new IOException("HTTP error code" + responseCode);
-            }
-            results = getStringByStream(connection.getInputStream());
-            return results;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "error";
-        }
-    }
-
-    //post 因为这里用不到返回值所以void就行
-    public void sendPost(String ip, String pa) {
-        try {
-            connection = null;
-            URL url = new URL(ip);
-            connection = (HttpURLConnection) url.openConnection();
-            connection.setConnectTimeout(3000);
-            connection.setReadTimeout(3000);
-            connection.setRequestMethod("POST");
-            connection.setDoInput(true);
-            connection.setDoOutput(false);
-            connection.connect();
-            DataOutputStream dos = new DataOutputStream(connection.getOutputStream());
-            param = pa;
-            dos.writeBytes(param);
-            responseCode = connection.getResponseCode();
-            if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw new IOException("HTTP error code" + responseCode);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    //用于返回值的处理
-    private String getStringByStream(InputStream inputStream) {
-        Reader reader;
-        StringBuilder buffer;
-        try {
-            reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-            char[] rawBuffer = new char[512];
-            buffer = new StringBuilder();
-            int length;
-            while ((length = reader.read(rawBuffer)) != -1) {
-                buffer.append(rawBuffer, 0, length);
-            }
-            return buffer.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    //模拟python中的re.search
-    public String re_search(String pat, String li) {
-        line = li;
-        pattern = pat;
-        Pattern r = Pattern.compile(pattern);
-        Matcher m = r.matcher(line);
-        if (m.find()) {
-            return m.group(1);
-        } else {
-            return "null";
         }
     }
 }
